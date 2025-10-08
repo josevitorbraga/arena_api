@@ -15,6 +15,7 @@ import dashboardRoutes from './dashboardRoutes.js';
 import webhookRoutes from './webhookRoutes.js';
 import { sendNotification } from '../notificationWebsocket.js';
 import importRoutes from './importRoutes.js';
+import seedDatabase from '../utils/seedDatabase.js';
 
 const router = Router();
 
@@ -30,6 +31,38 @@ router.use('/api/leads', leadsRoutes);
 router.use('/api/dashboard', dashboardRoutes);
 router.use('/api/webhook', webhookRoutes);
 router.use('/api/import', importRoutes);
+
+// Endpoint de emergência para recriar dados iniciais
+router.post('/api/initialize', async (req, res) => {
+  try {
+    // Verifica se já existem usuários
+    const usuarioCount = await Usuario.countDocuments();
+
+    if (usuarioCount > 0) {
+      return res.status(400).json({
+        message: 'Sistema já possui usuários. Inicialização não é necessária.',
+        existingUsers: usuarioCount,
+      });
+    }
+
+    await seedDatabase();
+
+    res.status(200).json({
+      message: 'Sistema inicializado com sucesso!',
+      credentials: {
+        usuario: 'admin',
+        senha: 'admin123',
+      },
+      warning: 'IMPORTANTE: Altere essas credenciais após o primeiro login!',
+    });
+  } catch (error) {
+    console.error('Erro na inicialização:', error);
+    res.status(500).json({
+      error: 'Erro interno do servidor',
+      message: error.message,
+    });
+  }
+});
 
 router.post('/api/populate', async (req, res) => {
   try {

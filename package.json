@@ -2,7 +2,7 @@
   "type": "module",
   "name": "adauto-api",
   "version": "1.0.0",
-  "description": "API do sistema de gestão ADAUTO STUDIO",
+  "description": "API do sistema de gestão ARENA",
   "main": "index.js",
   "author": "Jose Braga <josevitor2712@gmail.com>",
   "license": "MIT",

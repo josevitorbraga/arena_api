@@ -10,7 +10,7 @@ echo "Pull API concluído."
 
 yarn
 
-cd ../adauto-webapp
+cd ../arena_webapp
 
 
 echo "Fazendo pull da branch master APP..."

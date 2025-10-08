@@ -13,6 +13,7 @@ import {
   notificationWebsocket,
   sendNotification,
 } from './notificationWebsocket.js';
+import seedDatabase from './utils/seedDatabase.js';
 
 moment.locale('pt-br'); // Configura o moment para usar o locale pt-br
 
@@ -30,17 +31,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(router);
 notificationWebsocket();
 
-app.use(express.static(path.join(__dirname, '../adauto-webapp/dist')));
+app.use(express.static(path.join(__dirname, '../arena_webapp/dist')));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../adauto-webapp/dist', 'index.html'));
+  res.sendFile(path.join(__dirname, '../arena_webapp/dist', 'index.html'));
 });
 
 const main = async () => {
   try {
     const now = moment().format('DD/MM/YYYY HH:mm:ss');
-    await mongoose.connect('mongodb://127.0.0.1:27017/adauto');
+    await mongoose.connect('mongodb://127.0.0.1:27017/arena');
     console.log('DATABASE CONNECTED at: ', now);
+
+    // Executar seed do banco de dados se necessário
+    await seedDatabase();
+
     app.listen(3333, () => {
       console.log(`Server is running on port 3333 at: ${now}`);
     });
