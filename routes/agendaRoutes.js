@@ -246,15 +246,7 @@ agendaRoutes.put('/:id', authMiddleware, async (req, res) => {
 
 agendaRoutes.get('/', authMiddleware, async (req, res) => {
   try {
-    const {
-      data,
-      professor,
-      expediente = true,
-      calendar = true,
-      tipo,
-      aluno,
-      search,
-    } = req.query;
+    const { data, professor, calendar = true, tipo, aluno, search } = req.query;
     const startOfDay = moment(data).startOf('day').toDate();
     const endOfDay = moment(data).endOf('day').toDate();
     const currentWeek = moment(data).weekday();
@@ -314,7 +306,7 @@ agendaRoutes.get('/', authMiddleware, async (req, res) => {
             professor,
             hora,
             horaMais30,
-            expediente === 'true'
+            false
           ),
         };
       }),

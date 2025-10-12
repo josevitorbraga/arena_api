@@ -6,13 +6,14 @@ const leadsRoutes = Router();
 
 leadsRoutes.post('/', authMiddleware, async (req, res) => {
   try {
-    const { nome, cpf, dataNascimento, telefone, nomeAgenda } = req.body;
+    const { nome, cpf, dataNascimento, telefone, email, nomeAgenda } = req.body;
 
     const aluno = await Leads.create({
       nome,
       cpf,
       dataNascimento,
       telefone,
+      email,
       nomeAgenda,
       unidade: req.unidade_selecionada,
     });
@@ -68,7 +69,7 @@ leadsRoutes.get('/:id', authMiddleware, async (req, res) => {
 
 leadsRoutes.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { nome, cpf, dataNascimento, telefone, nomeAgenda } = req.body;
+    const { nome, cpf, dataNascimento, telefone, email, nomeAgenda } = req.body;
 
     const aluno = await Leads.findByIdAndUpdate(
       req.params.id,
@@ -77,6 +78,7 @@ leadsRoutes.put('/:id', authMiddleware, async (req, res) => {
         cpf,
         dataNascimento,
         telefone,
+        email,
         nomeAgenda,
       },
       { new: true }

@@ -173,25 +173,13 @@ export const getAgendamentos = async (
   ];
 };
 
-export const isHoraInExpediente = (hora, expediente) => {
-  if (!Array.isArray(expediente)) {
-    return false;
-  }
-  return expediente.some(({ horaInicio, horaFim }) => {
-    return moment(hora, 'HH:mm').isBetween(
-      moment(horaInicio, 'HH:mm'),
-      moment(horaFim, 'HH:mm'),
-      null,
-      '[)'
-    );
-  });
-};
+// Função de expediente removida - funcionalidade simplificada
 
-export const createEmptyAgendamento = (hora, count, expediente, hide) => ({
+export const createEmptyAgendamento = (hora, count, hide = false) => ({
   hora,
   agendado: false,
   count,
-  hide: hide ? !isHoraInExpediente(hora, expediente) : false,
+  hide: hide,
 });
 
 export const getPeriodoAgendamentos = (
@@ -220,11 +208,11 @@ export const getPeriodoAgendamentos = (
   return [
     ...mapAgendamentos(agendamentosHora, hora),
     ...Array(Math.max(0, 2 - agendamentosHora.length)).fill(
-      createEmptyAgendamento(hora, 2, professor.expediente, hide)
+      createEmptyAgendamento(hora, 2, hide)
     ),
     ...mapAgendamentos(agendamentosHoraMais30, horaMais30),
     ...Array(Math.max(0, 2 - agendamentosHoraMais30.length)).fill(
-      createEmptyAgendamento(horaMais30, 2, professor.expediente, hide)
+      createEmptyAgendamento(horaMais30, 2, hide)
     ),
   ];
 };
@@ -233,7 +221,6 @@ export const getAgendamentoPorSemana = async (
   horas,
   professorId,
   unidadeSelecionada,
-  expediente,
   startOfDay,
   endOfDay
 ) => {
@@ -270,7 +257,7 @@ export const getAgendamentoPorSemana = async (
               professorData,
               hora,
               horaMais30,
-              expediente
+              false
             ),
           };
         }),
@@ -462,4 +449,94 @@ export const getCalendarAgenda = async ({
       return ret;
     }
   );
+};
+
+// Funções para o sistema de planos
+
+export const calcularDataVencimento = (dataInicio, planoTipo) => {
+  const dataInicioMoment = moment(dataInicio);
+  
+  switch (planoTipo) {
+    case 'mensal':
+      return dataInicioMoment.add(1, 'month').toDate();
+    case 'trimestral':
+      return dataInicioMoment.add(3, 'months').toDate();
+    case 'semestral':
+      return dataInicioMoment.add(6, 'months').toDate();
+    case 'anual':
+      return dataInicioMoment.add(1, 'year').toDate();
+    case 'avulso':
+      return null; // Planos avulsos não têm vencimento
+    default:
+      return dataInicioMoment.add(1, 'month').toDate();
+  }
+};
+
+export const calcularValorMensal = (planoValor, planoTipo) => {
+  switch (planoTipo) {
+    case 'mensal':
+      return planoValor;
+    case 'trimestral':
+      return planoValor / 3;
+    case 'semestral':
+      return planoValor / 6;
+    case 'anual':
+      return planoValor / 12;
+    case 'avulso':
+      return planoValor; // Para avulsos, mantém o valor original
+    default:
+      return planoValor;
+  }
+};
+
+export const calcularProximaRenovacao = (dataUltimaRenovacao, planoTipo) => {
+  if (planoTipo === 'avulso') {
+    return null; // Planos avulsos não renovam
+  }
+  
+  return calcularDataVencimento(dataUltimaRenovacao, planoTipo);
+};
+
+export const obterDescricaoPlano = (planoTipo, planoValor) => {
+  const valorFormatado = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  }).format(planoValor);
+
+  switch (planoTipo) {
+    case 'mensal':
+      return `Plano Mensal - ${valorFormatado}`;
+    case 'trimestral':
+      return `Plano Trimestral - ${valorFormatado}`;
+    case 'semestral':
+      return `Plano Semestral - ${valorFormatado}`;
+    case 'anual':
+      return `Plano Anual - ${valorFormatado}`;
+    case 'avulso':
+      return `Aula Avulsa - ${valorFormatado}`;
+    default:
+      return `Plano - ${valorFormatado}`;
+  }
+};
+
+export const verificarPlanoVencido = (dataVencimento) => {
+  if (!dataVencimento) return false;
+  return moment(dataVencimento).isBefore(moment(), 'day');
+};
+
+export const diasParaVencimento = (dataVencimento) => {
+  if (!dataVencimento) return null;
+  return moment(dataVencimento).diff(moment(), 'days');
+};
+
+export const calcularReceitaMensalReal = (alunos) => {
+  return alunos
+    .filter(aluno => !aluno.canceladoEm)
+    .reduce((total, aluno) => {
+      if (aluno.plano_tipo) {
+        return total + (aluno.plano_valorMensal || 0);
+      }
+      // Fallback para planos antigos
+      return total + (aluno.plano_valor || 0);
+    }, 0);
 };

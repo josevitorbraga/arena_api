@@ -38,27 +38,18 @@ const UsuarioSchema = new Schema(
       },
     ],
 
-    expediente: [
-      {
-        horaInicio: {
-          type: String,
-          required: function () {
-            return this.permissao === 3;
-          },
-        },
-        horaFim: {
-          type: String,
-          required: function () {
-            return this.permissao === 3;
-          },
-        },
-      },
-    ],
-
-    percentualComissao: {
+    valorAula: {
       type: Number,
       required: function () {
         return this.permissao === 3;
+      },
+      min: 0,
+      validate: {
+        validator: function (v) {
+          // Se é professor (permissão 3), o valor da aula deve ser maior que 0
+          return this.permissao !== 3 || (v && v > 0);
+        },
+        message: 'Valor da aula deve ser maior que zero para professores',
       },
     },
     podeEditarAgenda: {

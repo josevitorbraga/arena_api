@@ -24,24 +24,9 @@ financeiroRoutes.post('/', authMiddleware, async (req, res) => {
 
     if (aluno) {
       const entradaExistente = await Entradas.findOne({ aluno });
-      const alunoQs = await Aluno.findById(aluno).populate(
-        'vendaRealizadaPor professorAvaliacao'
-      );
+      const alunoQs = await Aluno.findById(aluno);
 
-      if (!entradaExistente) {
-        const percentualProfessor =
-          alunoQs.vendaRealizadaPor.percentualComissao;
-        const valorComissao = (alunoQs.plano_valor * percentualProfessor) / 100;
-
-        await Comissao.create({
-          user: alunoQs.vendaRealizadaPor,
-          valor: valorComissao,
-          data: data,
-          tipo: 'Comissão de venda',
-          unidade: req.unidade_selecionada,
-          aluno: alunoQs._id,
-        });
-      }
+      // Comissão de venda removida - não há mais percentual de comissão
 
       if (tipo === 'Mensalidade') {
         await Entradas.create({
@@ -63,21 +48,10 @@ financeiroRoutes.post('/', authMiddleware, async (req, res) => {
         alunoQuery.active = true;
         await alunoQuery.save();
       } else if (tipo === 'Avaliacao') {
-        const percentual = alunoQs.professorAvaliacao.percentualComissao;
-        const valorDescontado =
-          (alunoQs.plano_avaliacaoValor * percentual) / 100;
-
-        await Comissao.create({
-          user: alunoQs.professorAvaliacao,
-          valor: valorDescontado,
-          data: data,
-          tipo: 'Comissão de avaliação física',
-          unidade: req.unidade_selecionada,
-          aluno: alunoQs._id,
-        });
+        // Valor padrão para avaliação (pode ser alterado no frontend)
         await Entradas.create({
           aluno,
-          valor: alunoQs.plano_avaliacaoValor,
+          valor: valor || 50, // Valor padrão ou informado pelo usuário
           data,
           formaPagamento,
           tipo,

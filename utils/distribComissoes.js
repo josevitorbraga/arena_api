@@ -64,38 +64,11 @@ const distribuirComissoes = async () => {
     // Calcular e salvar comissões
     for (const agendamento of agendamentos) {
       if (agendamento.aluno && agendamento.aluno.plano_valor > 0) {
-        if (
-          agendamento.aluno.isAplication &&
-          moment().isBefore(moment(agendamento.aluno.plano_dataVencimento))
-        ) {
-          const aluno = await Aluno.findById(agendamento.aluno._id).populate(
-            'vendaRealizadaPor'
-          );
-
-          const comissaoRecepcao = new Comissao({
-            user: aluno.vendaRealizadaPor._id,
-            valor: calcularComissao(
-              agendamento.aluno.plano_valor,
-              aluno.vendaRealizadaPor.percentualComissao
-            ),
-            data: startOfDay,
-            tipo: 'Comissão de venda aplicativo',
-            hora: agendamento.hora,
-            agendamento: agendamento._id,
-            unidade: agendamento.unidade,
-            aluno: agendamento.aluno._id,
-          });
-
-          await comissaoRecepcao.save();
-        }
+        // Funcionalidade de comissão de venda aplicativo removida
 
         const comissao = new Comissao({
           user: agendamento.professor._id,
-          valor: calcularComissao(
-            agendamento.aluno.plano_valor,
-            agendamento.professor.percentualComissao,
-            agendamento.aluno.aulasDoPlano || 1
-          ),
+          valor: agendamento.professor.valorAula,
           data: startOfDay,
           tipo: 'Comissão de aula dada',
           hora: agendamento.hora,
@@ -114,13 +87,6 @@ const distribuirComissoes = async () => {
   }
 };
 
-// Função para calcular o valor da comissão recebe valor e percentual e retorna o valor calculado
-const calcularComissao = (
-  valorPlano,
-  percentualProfessor,
-  quantidadeAulas = 1
-) => {
-  return ((valorPlano / quantidadeAulas) * percentualProfessor) / 100;
-};
+// Função removida - agora a comissão é o valor integral da aula
 
 export default distribuirComissoes;

@@ -28,7 +28,7 @@ const seedDatabase = async () => {
     const adminUser = new Usuario({
       nome: 'Administrador',
       usuario: 'admin',
-      senha: 'Lps2020#', // Senha em texto plano - será criptografada automaticamente
+      senha: 'admin123', // Senha em texto plano - será criptografada automaticamente
       permissao: 1, // Admin
       unidades: [unidadePadrao._id],
     });

@@ -105,7 +105,9 @@ reportRoutes.get('/fechamento', authMiddleware, async (req, res) => {
       { header: 'Data de Nascimento', key: 'dataNascimento', width: 20 },
       { header: 'Telefone', key: 'telefone', width: 20 },
       { header: 'Plano', key: 'plano_desc', width: 20 },
+      { header: 'Tipo do Plano', key: 'plano_tipo', width: 15 },
       { header: 'Valor do Plano', key: 'plano_valor', width: 20 },
+      { header: 'Valor Mensal', key: 'plano_valorMensal', width: 20 },
       { header: 'Data de Vencimento', key: 'plano_dataVencimento', width: 20 },
       { header: 'É Aplicativo', key: 'isAplication', width: 20 },
       { header: 'Inativado em', key: 'canceladoEm', width: 10 },
@@ -163,7 +165,9 @@ reportRoutes.get('/fechamento', authMiddleware, async (req, res) => {
         dataNascimento: aluno.dataNascimento,
         telefone: aluno.telefone,
         plano_desc: aluno.plano_desc,
+        plano_tipo: aluno.plano_tipo || 'mensal',
         plano_valor: aluno.plano_valor,
+        plano_valorMensal: aluno.plano_valorMensal || aluno.plano_valor,
         plano_dataVencimento: aluno.plano_dataVencimento,
         isAplication: aluno.isAplication,
         canceladoEm: aluno.canceladoEm,
@@ -179,6 +183,8 @@ reportRoutes.get('/fechamento', authMiddleware, async (req, res) => {
     worksheetDespesas.getColumn('valor').numFmt =
       '"R$"#,##0.00;[Red]-"R$"#,##0.00';
     worksheetAlunos.getColumn('plano_valor').numFmt =
+      '"R$"#,##0.00;[Red]-"R$"#,##0.00';
+    worksheetAlunos.getColumn('plano_valorMensal').numFmt =
       '"R$"#,##0.00;[Red]-"R$"#,##0.00';
 
     res.setHeader(

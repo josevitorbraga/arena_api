@@ -47,15 +47,8 @@ usuarioRoutes.get('/:id', authMiddleware, async (req, res) => {
 
 usuarioRoutes.post('/', authMiddleware, async (req, res) => {
   try {
-    const {
-      nome,
-      usuario,
-      senha,
-      permissao,
-      expediente,
-      percentualComissao,
-      podeEditarAgenda,
-    } = req.body;
+    const { nome, usuario, senha, permissao, valorAula, podeEditarAgenda } =
+      req.body;
 
     await Usuario.create({
       nome,
@@ -63,8 +56,7 @@ usuarioRoutes.post('/', authMiddleware, async (req, res) => {
       senha,
       permissao,
       unidades: [req.unidade_selecionada],
-      expediente,
-      percentualComissao,
+      valorAula,
       podeEditarAgenda,
     });
 
@@ -88,8 +80,7 @@ usuarioRoutes.put('/', authMiddleware, async (req, res) => {
       usuario,
       senha,
       permissao,
-      expediente,
-      percentualComissao,
+      valorAula,
       unidades,
       podeEditarAgenda,
     } = req.body;
@@ -103,8 +94,7 @@ usuarioRoutes.put('/', authMiddleware, async (req, res) => {
         usuario,
         senha,
         permissao,
-        expediente,
-        percentualComissao,
+        valorAula,
         unidades,
         podeEditarAgenda,
       }

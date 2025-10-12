@@ -13,6 +13,7 @@ import {
   countActiveInactive,
   calculateCommissionsByUser,
   countAulas,
+  calcularReceitaMensalReal,
 } from '../helpers.js';
 
 const dashboardRoutes = Router();
@@ -90,23 +91,26 @@ dashboardRoutes.get('/', authMiddleware, async (req, res) => {
       comissoes.filter(i => i.tipo !== 'Comissão de venda')
     );
     const aulasCount = countAulas(comissoesSemVenda);
+    // Cálculo atualizado usando receita mensal real baseada no tipo de plano
+    const receitaMensalReal = calcularReceitaMensalReal(alunos);
+
     const aReceber = alunos
       .filter(a => !a.active && !a.canceladoEm)
       .reduce((acc, aluno) => {
-        return acc + aluno.plano_valor;
+        // Para alunos em atraso, usa valor mensal se disponível
+        const valorMensal = aluno.plano_valorMensal || aluno.plano_valor;
+        return acc + valorMensal;
       }, 0);
 
     const recebido = alunos
       .filter(a => a.active && !a.canceladoEm && !a.isAplication)
       .reduce((acc, aluno) => {
-        return acc + aluno.plano_valor;
+        // Usa valor mensal calculado para projeções mais realistas
+        const valorMensal = aluno.plano_valorMensal || aluno.plano_valor;
+        return acc + valorMensal;
       }, 0);
 
-    const total = alunos
-      .filter(a => !a.canceladoEm && !a.isAplication)
-      .reduce((acc, aluno) => {
-        return acc + aluno.plano_valor;
-      }, 0);
+    const total = receitaMensalReal;
 
     const faturamento = entradasSemMensalidade + total;
 

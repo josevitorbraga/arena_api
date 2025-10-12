@@ -33,10 +33,7 @@ importRoutes.post('/alunos', (req, res) => {
           plano_dataVencimento:
             moment(record.plano_dataVencimento, 'DD/MM/YYYY').toDate() ||
             moment().toDate(),
-          vendaRealizadaPor: '6703354b9f6043872534746d',
-          professorAvaliacao: '6703354b9f6043872534746d',
           unidade: unidadeId,
-          plano_avaliacaoValor: 50,
           active:
             moment(record.plano_dataVencimento, 'DD/MM/YYYY').isAfter(
               moment()

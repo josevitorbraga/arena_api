@@ -19,6 +19,17 @@ const LeadsSchema = new Schema(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+      required: false,
+      lowercase: true,
+      validate: {
+        validator: function (v) {
+          return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        },
+        message: 'Email deve ter um formato válido',
+      },
+    },
     nomeAgenda: {
       type: String,
       required: true,
